@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "spaceship.hpp"
+#include "game.h"
 
 int main() 
 {
@@ -13,15 +14,16 @@ int main()
     InitWindow(screenWidth, screenHeight, "C++ Space Invaders");
     SetTargetFPS(60);
 
-    // Instantiate objects after InitWindow
-    Spaceship player;
+    // Instantiate the game after InitWindow in order to prevent seg faults!
+    Game game;
     
     while (!WindowShouldClose())
     {
+        game.HandleInput();
+        game.Update();
         BeginDrawing();
         ClearBackground(grey);
-        player.Draw();
-
+        game.Draw();
         // Get FPS value and draw it in a custom color
         int fps = GetFPS();  
         DrawText(TextFormat("FPS: %d", fps), 10, 10, 20, WHITE); 
