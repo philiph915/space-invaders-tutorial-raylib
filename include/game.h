@@ -24,6 +24,7 @@ private:
     void MoveAliens();
     void MoveDownAliens(int distance);
     void AlienShootLaser();
+    void CheckForCollisions(); // function to check all collidable objects in the game
     int aliensDirection;
     std::vector<Laser> alienLasers;
     constexpr static float alienLaserShootInterval = 0.35; // this constant expression will be initialized at compile time and cannot change
@@ -33,4 +34,5 @@ private:
     // properties for controlling spawn of mystery ship
     float mysteryShipSpawnInterval;
     float timeLastSpawn;
+    bool run;
 };

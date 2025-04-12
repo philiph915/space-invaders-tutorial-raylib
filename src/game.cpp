@@ -10,6 +10,7 @@ Game::Game()
     timeLastAlienFired = 0;
     timeLastSpawn = 0;
     mysteryShipSpawnInterval = GetRandomValue(10,20);
+    run = true;
 }
 
 Game::~Game()
@@ -50,33 +51,47 @@ void Game::Draw()
 
 void Game::Update()
 {
+    if (run==true) {
+        // Mystery ship spawn logic
+        double currentTime = GetTime();
+        if (currentTime - timeLastSpawn > mysteryShipSpawnInterval)
+        {
+            mysteryship.Spawn();
+            timeLastSpawn = GetTime();
+            mysteryShipSpawnInterval = GetRandomValue(10,20);
+        }
 
-    // Mystery ship spawn logic
-    double currentTime = GetTime();
-    if (currentTime - timeLastSpawn > mysteryShipSpawnInterval)
-    {
-        mysteryship.Spawn();
-        timeLastSpawn = GetTime();
-        mysteryShipSpawnInterval = GetRandomValue(10,20);
-    }
-
-    // Automatically update all the lasers in the player ships laser array
-    for (auto& laser: spaceship.lasers)
-    {
-        laser.Update();
-
+        // Automatically update all the lasers in the player ships laser array
+        for (auto& laser: spaceship.lasers)
+        {
+            laser.Update();
+            // DeleteInactiveLasers();
+            // std::cout << "Vector Size: " << spaceship.lasers.size() << std::endl; //debuigging: test if lasers are being deleted
+        }
+        MoveAliens();
+        AlienShootLaser();
+        for (auto& laser: alienLasers)
+        {
+            laser.Update();
+            // DeleteInactiveLasers();
+        }
+        
+        // Now that all laser objects have been created, delete any that need to be removed
         DeleteInactiveLasers();
-        // std::cout << "Vector Size: " << spaceship.lasers.size() << std::endl; //debuigging: test if lasers are being deleted
-    }
-    MoveAliens();
-    AlienShootLaser();
-    for (auto& laser: alienLasers)
-    {
-        laser.Update();
-    }
 
-    // Move the mystery ship
-    mysteryship.Update();
+        // Move the mystery ship
+        mysteryship.Update();
+
+        // Collision detection
+        CheckForCollisions();
+    }
+    else
+    {
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            run = true;
+        }
+    }
 }
 
 void Game::HandleInput()
@@ -213,5 +228,108 @@ void Game::AlienShootLaser()
         alienLasers.push_back(Laser({alien.position.x + alien.alienImages[alien.type-1].width/2, 
                                     alien.position.y + alien.alienImages[alien.type-1].height},6));
     timeLastAlienFired = GetTime();
+    }
+}
+
+void Game::CheckForCollisions()
+{
+    // Spaceship lasers 
+    for (auto& laser: spaceship.lasers) // automatically defines the range of the for loop and gets every object in spaceship.lasers
+    {
+
+        // collision with aliens
+
+        // use an iterator to loop across the  array of alien objects and dynamically delete aliens from the array while iterating over it
+        auto it = aliens.begin(); // initialize the iterator at the beginning of the array 
+        while (it != aliens.end()) // loop across the array dynamically
+        {
+            if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) // calls the GetRect() function of the object that it is pointing to
+            {
+                it = aliens.erase(it); // if there was a collision, erase the object it points to (this is an alien object)
+                laser.active = false; //mark the current laser object for deletion
+            }
+            else 
+            {
+                ++it; //otherwise, continue iterating through the array
+            }
+        }
+
+        // collision with obstacles
+        for (auto& obstacle: obstacles) //automatically gets size of obstacles array and grabs each object
+        {
+            auto it = obstacle.blocks.begin(); //same logic as before; iterate across array of blocks objects for each obstacle
+            while (it != obstacle.blocks.end())
+            {
+                if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) // calls the GetRect() function of the object that it is pointing to
+                {
+                    it = obstacle.blocks.erase(it); // if there was a collision, erase the object block from the obstacle.blocks array
+                    laser.active = false; //mark the current laser object for deletion
+                }
+                else 
+                {
+                    ++it; //otherwise, continue iterating through the array
+                }
+            }
+        }
+
+        // collision with mystery ship
+        if (CheckCollisionRecs(mysteryship.GetRect(),laser.GetRect()))
+        {
+            mysteryship.alive = false; // this should work because the mystery ship is only collidable while alive (otherwise rect size is 0,0)
+            laser.active = false;
+        }
+        
+    }
+
+    // Alien lasers
+    for (auto& laser: alienLasers)
+    {
+        // Check collisions with player space ship
+        if (CheckCollisionRecs(laser.GetRect(), spaceship.GetRect()))
+        {
+            laser.active = false;
+            std::cout << "Player hit by laser" << std::endl;
+        }
+
+        // check for collisions with obstacles
+        for (auto& obstacle: obstacles) //automatically gets size of obstacles array and grabs each object
+        {
+            auto it = obstacle.blocks.begin(); //same logic as before; iterate across array of blocks objects for each obstacle
+            while (it != obstacle.blocks.end())
+            {
+                if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) // calls the GetRect() function of the object that it is pointing to
+                {
+                    it = obstacle.blocks.erase(it); // if there was a collision, erase the object block from the obstacle.blocks array
+                    laser.active = false; //mark the current laser object for deletion
+                }
+                else 
+                {
+                    ++it; //otherwise, continue iterating through the array
+                }
+            }
+        }
+    }
+
+    // Alien collision with obstacles & player
+    for (auto& alien: aliens) { // for every alien, check every obstacle
+        for (auto& obstacle: obstacles) {
+            auto it = obstacle.blocks.begin();
+            while (it!=obstacle.blocks.end())
+            {
+                if (CheckCollisionRecs(it->GetRect(),alien.GetRect()))
+                {
+                    it = obstacle.blocks.erase(it); // do not need to delete alien
+                } else {
+                    it ++; // need this line to not be in an endless loop (oops)
+                }
+            }
+        }
+
+        // for every alien, check for collision with the player
+        if (CheckCollisionRecs(alien.GetRect(),spaceship.GetRect()))
+        {
+            std::cout << "Spaceship hit by alien" << std::endl;
+            run = false;
+        }
     }
 }

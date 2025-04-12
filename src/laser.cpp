@@ -26,3 +26,8 @@ void Laser::Draw()
         DrawRectangle(position.x, position.y, 4, 15, {243, 216, 63, 255} );
     }
 }
+
+Rectangle Laser::GetRect()
+{
+    return Rectangle{position.x,position.y,4,15};
+}

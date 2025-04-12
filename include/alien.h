@@ -13,6 +13,7 @@ public:
     static void UnloadImages();
     int type;
     Vector2 position;
+    Rectangle GetRect();
 private:
 
 };

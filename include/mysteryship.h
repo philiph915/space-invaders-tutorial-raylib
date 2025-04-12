@@ -10,6 +10,7 @@ public:
     void Draw();
     void Spawn();
     bool alive;
+    Rectangle GetRect();
 private:
     Vector2 position;
     Texture2D image;

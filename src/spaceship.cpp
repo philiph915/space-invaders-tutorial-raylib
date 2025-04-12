@@ -44,3 +44,8 @@ void Spaceship::FireLaser()
         lastFireTime = GetTime();
     }
 }
+
+Rectangle Spaceship::GetRect()
+{
+    return {position.x, position.y , float(image.width), float(image.height)}; //cast image size as float b/c Rectangle expects floats
+}

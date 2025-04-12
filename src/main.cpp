@@ -13,7 +13,7 @@ int main()
     
     
     InitWindow(screenWidth, screenHeight, "C++ Space Invaders");
-    SetTargetFPS(60);
+    SetTargetFPS(120);
 
     // Instantiate the game after InitWindow in order to prevent seg faults!
     Game game;
