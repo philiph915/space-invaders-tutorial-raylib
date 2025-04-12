@@ -2,6 +2,7 @@
 #include "spaceship.hpp"
 #include "obstacle.h"
 #include "alien.h"
+#include "mysteryship.h"
 
 
 class Game 
@@ -25,4 +26,11 @@ private:
     void AlienShootLaser();
     int aliensDirection;
     std::vector<Laser> alienLasers;
+    constexpr static float alienLaserShootInterval = 0.35; // this constant expression will be initialized at compile time and cannot change
+    float timeLastAlienFired;
+    MysteryShip mysteryship;
+
+    // properties for controlling spawn of mystery ship
+    float mysteryShipSpawnInterval;
+    float timeLastSpawn;
 };

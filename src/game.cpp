@@ -7,6 +7,9 @@ Game::Game()
     obstacles = CreateObstacles();
     aliens = CreateAliens();
     aliensDirection = 1;
+    timeLastAlienFired = 0;
+    timeLastSpawn = 0;
+    mysteryShipSpawnInterval = GetRandomValue(10,20);
 }
 
 Game::~Game()
@@ -41,10 +44,22 @@ void Game::Draw()
     {
         alien.Draw();
     }
+
+    mysteryship.Draw();
 }
 
 void Game::Update()
 {
+
+    // Mystery ship spawn logic
+    double currentTime = GetTime();
+    if (currentTime - timeLastSpawn > mysteryShipSpawnInterval)
+    {
+        mysteryship.Spawn();
+        timeLastSpawn = GetTime();
+        mysteryShipSpawnInterval = GetRandomValue(10,20);
+    }
+
     // Automatically update all the lasers in the player ships laser array
     for (auto& laser: spaceship.lasers)
     {
@@ -59,6 +74,9 @@ void Game::Update()
     {
         laser.Update();
     }
+
+    // Move the mystery ship
+    mysteryship.Update();
 }
 
 void Game::HandleInput()
@@ -88,11 +106,25 @@ void Game::HandleInput()
 // finished iterating over it.
 void Game::DeleteInactiveLasers()
 {
+    // delete lasers from player laser array
     for (auto it = spaceship.lasers.begin(); it != spaceship.lasers.end();)
     {
         if(!it -> active)
         {
             it = spaceship.lasers.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    // delete lasers from alienLasers array
+    for (auto it = alienLasers.begin(); it != alienLasers.end();)
+    {
+        if(!it -> active)
+        {
+            it = alienLasers.erase(it);
         }
         else
         {
@@ -172,9 +204,14 @@ void Game::MoveDownAliens(int distance)
 
 void Game::AlienShootLaser()
 {
-    // select a random alien and make it shoot a laser
-    int randomIndex = GetRandomValue(0,aliens.size()-1);
-    Alien& alien = aliens[randomIndex]; // get a reference to the alien at randomIndex
-    alienLasers.push_back(Laser({alien.position.x + alien.alienImages[alien.type-1].width/2, 
-                                alien.position.y + alien.alienImages[alien.type-1].height},6));
+    double currentTime = GetTime(); // time since game started
+    if (currentTime - timeLastAlienFired >= alienLaserShootInterval && !aliens.empty() )
+    {
+        // select a random alien and make it shoot a laser
+        int randomIndex = GetRandomValue(0,aliens.size()-1);
+        Alien& alien = aliens[randomIndex]; // get a reference to the alien at randomIndex
+        alienLasers.push_back(Laser({alien.position.x + alien.alienImages[alien.type-1].width/2, 
+                                    alien.position.y + alien.alienImages[alien.type-1].height},6));
+    timeLastAlienFired = GetTime();
+    }
 }
