@@ -4,13 +4,7 @@
 
 Game::Game()
 {
-    obstacles = CreateObstacles();
-    aliens = CreateAliens();
-    aliensDirection = 1;
-    timeLastAlienFired = 0;
-    timeLastSpawn = 0;
-    mysteryShipSpawnInterval = GetRandomValue(10,20);
-    run = true;
+    InitGame();
 }
 
 Game::~Game()
@@ -84,12 +78,16 @@ void Game::Update()
 
         // Collision detection
         CheckForCollisions();
+        
+        // User inputs
+        HandleInput();
     }
     else
     {
         if (IsKeyPressed(KEY_ENTER))
         {
-            run = true;
+            Reset();
+            InitGame();
         }
     }
 }
@@ -156,7 +154,7 @@ std::vector<Obstacle> Game::CreateObstacles()
     for (int i = 0; i < 4; i++)
     {
         float offsetX = (i + 1) * gap + i * obstacleWidth;
-        obstacles.push_back(Obstacle({offsetX,float(GetScreenHeight() - 100)}));
+        obstacles.push_back(Obstacle({offsetX,float(GetScreenHeight() - 200)}));
     }
     return obstacles;
 }
@@ -195,12 +193,12 @@ void Game::MoveAliens()
 {
     for (auto& alien: aliens)
     {
-        if(alien.position.x + alien.alienImages[alien.type-1].width > GetScreenWidth())
+        if(alien.position.x + alien.alienImages[alien.type-1].width > GetScreenWidth()-25)
         {
             aliensDirection=-1;
             MoveDownAliens(4);
         }
-        if (alien.position.x < 0)
+        if (alien.position.x < 25)
         {
             aliensDirection = 1;
             MoveDownAliens(4);
@@ -289,6 +287,11 @@ void Game::CheckForCollisions()
         {
             laser.active = false;
             std::cout << "Player hit by laser" << std::endl;
+            lives--;
+            if (lives == 0)
+            {
+                GameOver();
+            }
         }
 
         // check for collisions with obstacles
@@ -328,8 +331,36 @@ void Game::CheckForCollisions()
         // for every alien, check for collision with the player
         if (CheckCollisionRecs(alien.GetRect(),spaceship.GetRect()))
         {
-            std::cout << "Spaceship hit by alien" << std::endl;
-            run = false;
+            // std::cout << "Spaceship hit by alien" << std::endl;
+            GameOver();
         }
     }
+}
+
+void Game::GameOver()
+{
+    std::cout << "Game Over" << std::endl;
+    run = false;
+}
+
+void Game::Reset()
+{
+    spaceship.Reset();
+    aliens.clear();
+    alienLasers.clear();
+    obstacles.clear();
+    mysteryship.alive = false;
+}
+
+void Game::InitGame()
+{
+    obstacles = CreateObstacles();
+    aliens = CreateAliens();
+    aliensDirection = 1;
+    timeLastAlienFired = 0;
+    timeLastSpawn = 0;
+    mysteryShipSpawnInterval = GetRandomValue(10,20);
+    run = true;
+    lives = 3;
+
 }

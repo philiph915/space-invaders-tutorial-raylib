@@ -13,26 +13,31 @@ public:
     void Draw();
     void Update();
     void HandleInput();
+    bool run;
+    int lives;
 
 private:
     void DeleteInactiveLasers();
     std::vector<Obstacle> CreateObstacles();
     std::vector<Alien> CreateAliens();
-    Spaceship spaceship;
-    std::vector<Obstacle> obstacles;
-    std::vector<Alien> aliens;
     void MoveAliens();
     void MoveDownAliens(int distance);
     void AlienShootLaser();
     void CheckForCollisions(); // function to check all collidable objects in the game
+    void GameOver();
+    void Reset();
+    void InitGame();
+    
     int aliensDirection;
+    std::vector<Alien> aliens;
     std::vector<Laser> alienLasers;
-    constexpr static float alienLaserShootInterval = 0.35; // this constant expression will be initialized at compile time and cannot change
     float timeLastAlienFired;
     MysteryShip mysteryship;
-
+    Spaceship spaceship;
+    std::vector<Obstacle> obstacles;
+    constexpr static float alienLaserShootInterval = 0.35; // this constant expression will be initialized at compile time and cannot change
+    
     // properties for controlling spawn of mystery ship
     float mysteryShipSpawnInterval;
     float timeLastSpawn;
-    bool run;
 };
