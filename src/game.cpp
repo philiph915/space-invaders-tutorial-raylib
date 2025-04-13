@@ -245,6 +245,14 @@ void Game::CheckForCollisions()
             {
                 it = aliens.erase(it); // if there was a collision, erase the object it points to (this is an alien object)
                 laser.active = false; //mark the current laser object for deletion
+                // Award points based on which type of alien was hit
+                if (it -> type == 1)    {
+                    score+=100;
+                } else if (it -> type == 2) {
+                    score+=200;
+                } else if (it -> type == 3) {
+                    score+=300;
+                }
             }
             else 
             {
@@ -275,6 +283,7 @@ void Game::CheckForCollisions()
         {
             mysteryship.alive = false; // this should work because the mystery ship is only collidable while alive (otherwise rect size is 0,0)
             laser.active = false;
+            score+=500;
         }
         
     }
@@ -354,6 +363,7 @@ void Game::Reset()
 
 void Game::InitGame()
 {
+    score = 0;
     obstacles = CreateObstacles();
     aliens = CreateAliens();
     aliensDirection = 1;

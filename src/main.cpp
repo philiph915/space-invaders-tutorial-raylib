@@ -1,7 +1,15 @@
 #include "raylib.h"
 #include "spaceship.hpp"
 #include "game.h"
+#include <string>
 
+std::string FormatWithLeadingZeros(int number, int width)
+{
+    std::string numberText = std::to_string(number);          // Format number as a string
+    int leadingZeros = width - numberText.length();           // Add leading zeros
+    numberText = std::string(leadingZeros, '0') + numberText; // creates leadingZeros number of copies of the character '0' (2nd argunment must be CHAR)
+    return numberText;
+}
 
 int main() 
 {
@@ -35,7 +43,7 @@ int main()
         
         // Get FPS value and draw it in a custom color
         int fps = GetFPS();  
-        DrawText(TextFormat("FPS: %d", fps), 50, 50, 20, WHITE); 
+        DrawText(TextFormat("FPS: %d", fps), 350, 20, 20, WHITE); 
         
         // Draw LEVEL 01 or GAME OVER depending on game state
         if (game.run) {
@@ -49,6 +57,12 @@ int main()
         {
             DrawTextureV(spaceshipImage, {50 + 50*float(i), 745}, WHITE);
         }
+
+        // Draw the current score
+        DrawTextEx(font_ui, "SCORE", {50, 15}, 34, 2, yellow);
+        std::string scoreText = FormatWithLeadingZeros(game.score, 5);
+        DrawTextEx(font_ui, scoreText.c_str(), {50, 40}, 34, 2, yellow);
+        
         
         // Render game graphics
         game.Draw();
