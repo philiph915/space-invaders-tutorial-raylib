@@ -26,12 +26,17 @@ int main()
     Font font_ui = LoadFontEx("../Font/monogram.ttf", 64, 0, 0);
     Texture2D spaceshipImage = LoadTexture("../Graphics/spaceship.png");
 
+    // Initialize Sounds and Audio
+    InitAudioDevice();
+
+
     // Instantiate the game after InitWindow in order to prevent seg faults!
     Game game;
     
     // Run the game loop
     while (!WindowShouldClose())
     {
+        UpdateMusicStream(game.music);
         game.Update();
         BeginDrawing();
         
@@ -75,4 +80,5 @@ int main()
     }
     
     CloseWindow();
+    CloseAudioDevice();
 }

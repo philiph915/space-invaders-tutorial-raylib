@@ -5,12 +5,18 @@
 
 Game::Game()
 {
+    music = LoadMusicStream("../Sounds/Space_Invaders_remix.mp3");
+    explosionSound = LoadSound("../Sounds/explosion.ogg");
+    SetMusicVolume(music, 0.2f); // Set to 20% volume
+    PlayMusicStream(music);
     InitGame();
 }
 
 Game::~Game()
 {
     Alien::UnloadImages();
+    UnloadMusicStream(music);
+    UnloadSound(explosionSound);
 }
 
 void Game::Draw()
@@ -244,6 +250,7 @@ void Game::CheckForCollisions()
         {
             if (CheckCollisionRecs(it -> GetRect(), laser.GetRect())) // calls the GetRect() function of the object that it is pointing to
             {
+                PlaySound(explosionSound);
                 it = aliens.erase(it); // if there was a collision, erase the object it points to (this is an alien object)
                 laser.active = false; //mark the current laser object for deletion
                 // Award points based on which type of alien was hit
@@ -283,6 +290,7 @@ void Game::CheckForCollisions()
         // collision with mystery ship
         if (CheckCollisionRecs(mysteryship.GetRect(),laser.GetRect()))
         {
+            PlaySound(explosionSound);
             mysteryship.alive = false; // this should work because the mystery ship is only collidable while alive (otherwise rect size is 0,0)
             laser.active = false;
             score+=500;
@@ -412,5 +420,4 @@ int Game::LoadHighScoreFromFile()
         std::cerr << "STD::CERR: Failed to load highscore from file." << std::endl;
     }
     return loadedHighScore;
-
 }
