@@ -62,6 +62,11 @@ int main()
         DrawTextEx(font_ui, "SCORE", {50, 15}, 34, 2, yellow);
         std::string scoreText = FormatWithLeadingZeros(game.score, 5);
         DrawTextEx(font_ui, scoreText.c_str(), {50, 40}, 34, 2, yellow);
+
+        // Draw the high score
+        DrawTextEx(font_ui, "HIGHSCORE", {570, 15}, 34, 2, yellow);
+        std::string highScoreText = FormatWithLeadingZeros(game.highScore, 5);
+        DrawTextEx(font_ui, highScoreText.c_str(), {642, 40}, 34, 2, yellow);
         
         
         // Render game graphics

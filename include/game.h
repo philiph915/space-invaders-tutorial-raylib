@@ -16,6 +16,7 @@ public:
     bool run;
     int lives;
     int score;
+    int highScore;
 
 private:
     void DeleteInactiveLasers();
@@ -28,6 +29,9 @@ private:
     void GameOver();
     void Reset();
     void InitGame();
+    void CheckHighScore();
+    void SaveHighScoreToFile(int highScore);
+    int  LoadHighScoreFromFile();
     
     int aliensDirection;
     std::vector<Alien> aliens;
